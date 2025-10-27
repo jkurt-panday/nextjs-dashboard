@@ -4,6 +4,7 @@ import clsx from 'clsx';
 export default function InvoiceStatus({ status }: { status: string }) {
   return (
     <span
+    // chapter 2 
       className={clsx(
         'inline-flex items-center rounded-full px-2 py-1 text-xs',
         {
