@@ -6,6 +6,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
 
+// object of icons
 const iconMap = {
   collected: BanknotesIcon,
   customers: UserGroupIcon,
@@ -30,11 +31,11 @@ export default async function CardWrapper() {
   );
 }
 
-export function Card({
+export function Card({    // variables passed in for the component
   title,
   value,
   type,
-}: {
+}: {          // the data type of said variables
   title: string;
   value: number | string;
   type: 'invoices' | 'customers' | 'pending' | 'collected';
@@ -44,6 +45,7 @@ export function Card({
   return (
     <div className="rounded-xl bg-gray-50 p-2 shadow-sm">
       <div className="flex p-4">
+        {/* // ! ternary operator */}
         {Icon ? <Icon className="h-5 w-5 text-gray-700" /> : null}
         <h3 className="ml-2 text-sm font-medium">{title}</h3>
       </div>
