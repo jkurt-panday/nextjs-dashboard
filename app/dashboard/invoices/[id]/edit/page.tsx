@@ -2,6 +2,9 @@ import Form from '@/app/ui/invoices/edit-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchCustomers, fetchInvoiceById } from '@/app/lib/data';
 
+// chapter 13, error handling
+import { notFound } from 'next/navigation';
+
 // similar to the create invoice but imports a different form, which is from 'edit-form'
 
 // export default async function Page() {
@@ -15,6 +18,11 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     fetchInvoiceById(id),
     fetchCustomers()
   ]);
+
+//   not found, or error 404
+  if (!invoice) {
+    notFound();
+  }
   
   return (
     <main>
