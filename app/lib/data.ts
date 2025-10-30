@@ -93,7 +93,7 @@ export async function fetchCardData() {
 }
 
 const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(
+export async function fetchFilteredInvoices(      // ! this is the search function
   query: string,
   currentPage: number
 ) {
@@ -112,10 +112,15 @@ export async function fetchFilteredInvoices(
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
       WHERE
+        -- filters throught the queried name
         customers.name ILIKE ${`%${query}%`} OR
+        -- email
         customers.email ILIKE ${`%${query}%`} OR
+        -- amount
         invoices.amount::text ILIKE ${`%${query}%`} OR
+        -- date
         invoices.date::text ILIKE ${`%${query}%`} OR
+        -- and status
         invoices.status ILIKE ${`%${query}%`}
       ORDER BY invoices.date DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}

@@ -11,6 +11,9 @@ export default async function InvoicesTable({
   query: string;
   currentPage: number;
 }) {
+
+  // If you navigate to the <Table> Component, you'll see that the two props, query and currentPage, 
+  // are passed to the fetchFilteredInvoices() function which returns the invoices that match the query.
   const invoices = await fetchFilteredInvoices(query, currentPage);
 
   return (
