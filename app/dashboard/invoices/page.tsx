@@ -6,6 +6,11 @@ import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchInvoicesPages } from '@/app/lib/data';    // added in chapter 11
+import { Metadata } from 'next';  // added in chapter 16, adding metadata
+
+export const metadata: Metadata = {
+  title: "Invoices"
+}
  
 export default async function Page( props: {
   searchParams?: Promise<{          // added in chapter 11, searchParams is an object
