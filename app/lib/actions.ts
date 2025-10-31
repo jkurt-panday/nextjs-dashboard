@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';         // redirection, section 6
 import postgres from 'postgres';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' }); 
+
 // const sql = postgres(process.env.POSTGRES_URL!, {
 //   ssl: "require",
 //   prepare: false,
@@ -15,22 +16,60 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 // type validation and coercion using zod
 const FormSchema = z.object({
   id: z.string(),
-  customerId: z.string(),
-  amount: z.coerce.number(),
-  status: z.enum(['pending', 'paid']),
+  customerId: z.string({
+    invalid_type_error: 'Please select a customer.',    // chapter 14, server validation section, a friendly message
+  }),
+  amount: z.coerce
+    .number()
+    .gt(0, { message: 'Please enter an amount greater than $0.' }),     // a friendly message 
+  status: z.enum(['pending', 'paid'], {
+    invalid_type_error: 'Please select an invoice status.'
+  }),
   date: z.string(),
 });
+
+// ! State
+export type State = {
+  errors?: {
+    customerId?: string[];
+    amount?: string[];
+    status?: string[];
+  };
+  message?: string | null;
+}
  
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function createInvoice(formData: FormData) {
+// export async function createInvoice(formData: FormData) {    // changed in chapter 14
+export async function createInvoice(prevState: State, formData: FormData) {
+  // prevState - contains the state passed from the useActionState hook. You won't be using it in the action in this example, but it's a required prop.
+
     // const rawFormData = {           // before validation and coercion
         
-  const { customerId, amount, status } = CreateInvoice.parse({      // after validation and coercion
+  // const { customerId, amount, status } = CreateInvoice.parse({      // after validation and coercion, changed after chapter 14
+  
+
+
+// safeParse() will return an object containing either a success or error field. This will help handle validation more gracefully without having put this logic inside the try/catch block.
+
+  // Validate form fields using Zod
+  const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
     status: formData.get('status'),
   });
+
+  // If form validation fails, return errors early, otherwise continue, added in chapter 14
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.'
+    }
+  }
+
+  // Prepare data for insertion into the database, added in chapter 14
+  const { customerId, amount, status } = validatedFields.data;
+
 //   converting 'amount' into cents
   const amountInCents = amount * 100;
 //   creating new date format
@@ -45,8 +84,8 @@ export async function createInvoice(formData: FormData) {
   } catch (error) {
     // We'll also log the error to the console for now
     console.log(error);
-    // return { message: 'Database Error: Failed to Create Invoice.', };
-    throw new Error( 'Database Error: Failed to Create Invoice' );          // use this instead of the one above
+    return { message: 'Database Error: Failed to Create Invoice.', };           // use this if you're using chapter 14 method
+    // throw new Error( 'Database Error: Failed to Create Invoice' );          // use this instead of the one above
   }
 
 //   revalidation, section 6
